@@ -15,12 +15,6 @@
 // "Needs Improvement" otherwise.
 // Constraints: The evaluation and final marks must account for subject difficulty and the student’s participation in extracurricular activities.
 
-// Expected Output:
-// [
-//   { name: "John", finalMarks: 278, performanceEvaluation: "Satisfactory" },
-//   { name: "Alice", finalMarks: 312, performanceEvaluation: "Outstanding" }
-// ]
-
 const students = [
   {
     name: "John",
@@ -42,33 +36,52 @@ const students = [
   },
 ];
 
-let arr = students.map((item)=>{
+let arr = students.map((student) => {
+  let totalScore = 0;
+  let bonusPoints = 0;
+  let hardSubjectsScore = 0;
+  let hardSubjectsCount = 0;
 
-  let sum = 0
-  let bonusPoint = 0
-  let diff;
+  student.marks.map((mark) => {
+    let modifiedScore = mark.score;
 
-  for(let i=0; i<item.marks.length; i++){
-    sum = sum + item.marks[i].score 
-
-    if(item.marks[i].score > 90){
-      bonusPoint = bonusPoint + 5
+    // Add 5 bonus points for scores >= 90
+    if (mark.score >= 90) {
+      bonusPoints += 5;
     }
 
-    if(item.marks[i].difficulty === "hard"){
-      diff =  item.marks[i].score * 1.2
+    // Multiply by 1.2 if the difficulty is "hard"
+    if (mark.difficulty === "hard") {
+      modifiedScore *= 1.2;
+      hardSubjectsScore += modifiedScore;
+      hardSubjectsCount++;
     }
-    // console.log(diff)
-  }
-  sum  = sum + bonusPoint + diff
-  console.log(sum)
 
- if(item.marks)
+    // Add to total score
+    totalScore += modifiedScore;
+  });
 
-  return{
-    name : item.name,
-    fullMarks : sum,
-    // performanceEvaluation: 
+  // Add bonus points to the total final score
+  let finalMarks = totalScore + bonusPoints;
+
+  // Calculate averages
+  let overallAverage = totalScore / student.marks.length;
+  let hardSubjectsAverage = hardSubjectsCount > 0 ? hardSubjectsScore / hardSubjectsCount : 0;
+
+  // Determine performance evaluation
+  let performanceEvaluation = "Needs Improvement";
+  if (hardSubjectsAverage > 85 && overallAverage > 80) {
+    performanceEvaluation = "Outstanding";
+  } else if (overallAverage > 70) {
+    performanceEvaluation = "Satisfactory";
   }
-})
-console.log(arr)
+
+  // Return final object with rounded final marks
+  return {
+    name: student.name,
+    finalMarks: Math.round(finalMarks),
+    performanceEvaluation: performanceEvaluation
+  };
+});
+
+console.log(arr);
